@@ -1,5 +1,8 @@
 // Piece.java
 
+import sun.awt.WindowIDProvider;
+
+import java.lang.reflect.Array;
 import java.util.*;
 
 /**
@@ -34,12 +37,29 @@ public class Piece {
 	 Makes its own copy of the array and the TPoints inside it.
 	*/
 	public Piece(TPoint[] points) {
-		// YOUR CODE HERE
+		if(!checker(points)) return;
+		body = new TPoint[points.length];
+		int[] arr = new int[points.length];
+		Arrays.fill(arr,Integer.MAX_VALUE);
+		for(int i = 0; i < points.length; i++) {
+			body[i] = points[i];
+			arr[body[i].x] = Math.min(arr[body[i].x],body[i].y);
+			width = Math.max(width,body[i].x);
+			height = Math.max(height,body[i].y);
+		}
+		width++;
+		height++;
+		skirt = new int[width];
+		System.arraycopy(arr, 0, skirt, 0, width);
+		Arrays.sort(body);
 	}
-	
-
-	
-	
+	private boolean checker(TPoint[] points) {
+		if(points.length == 0) return false;
+		for(int i = 0; i < points.length; i++) {
+			if(points[i] == null) return false;
+		}
+		return true;
+	}
 	/**
 	 * Alternate constructor, takes a String with the x,y body points
 	 * all separated by spaces, such as "0 0  1 0  2 0	1 1".
@@ -87,8 +107,14 @@ public class Piece {
 	 rotated from the receiver.
 	 */
 	public Piece computeNextRotation() {
-		// YOUR CODE HERE
-		return null; // YOUR CODE HERE
+		TPoint[] arr = new TPoint[body.length];
+		for(int i = 0; i < body.length; i++) {
+			int x = height -1 -  body[i].y;;
+			int  y = body[i].x;
+			TPoint point = new TPoint(x,y);
+			arr[i] = point;
+		}
+		return new Piece(arr);
 	}
 
 	/**
@@ -119,9 +145,10 @@ public class Piece {
 		// (null will be false)
 		if (!(obj instanceof Piece)) return false;
 		Piece other = (Piece)obj;
-		
-		// YOUR CODE HERE
-		return true;
+		if(other.getHeight() != height) return false;
+		if(other.getWidth() != width) return false;
+		return Arrays.deepEquals(body, other.getBody());
+
 	}
 
 
@@ -167,8 +194,6 @@ public class Piece {
 				makeFastRotations(new Piece(PYRAMID_STR)),
 			};
 		}
-		
-		
 		return Piece.pieces;
 	}
 	
@@ -187,8 +212,17 @@ public class Piece {
 	 to the first piece.
 	*/
 	private static Piece makeFastRotations(Piece root) {
-		// YOUR CODE HERE
-		return null; // YOUR CODE HERE
+		Piece curr = root;
+		while(true) {
+			Piece rotatedPeace = curr.computeNextRotation();
+			if(root.equals(rotatedPeace))  {
+				curr.next = root;
+				break;
+			}
+			curr.next = rotatedPeace;
+			curr = rotatedPeace;
+		}
+		return root;
 	}
 	
 	
@@ -217,8 +251,4 @@ public class Piece {
 		TPoint[] array = points.toArray(new TPoint[0]);
 		return array;
 	}
-
-	
-
-
 }

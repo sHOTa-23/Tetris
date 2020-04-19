@@ -6,7 +6,7 @@
  We'll allow public access to x/y, so this
  is not an object really.
  */
-public class TPoint {
+public class TPoint implements  Comparable{
 	public int x;
 	public int y;
 
@@ -40,5 +40,12 @@ public class TPoint {
 	// human-readable String from object
 	public String toString() {
 		return "(" + x + "," + y + ")";
+	}
+
+	@Override
+	public int compareTo(Object o) {
+		TPoint p = (TPoint)o;
+		if(p.x == x) return p.y-y;
+		return p.x-x;
 	}
 }
